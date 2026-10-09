@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { getRequestSession } from "@/lib/auth";
+import { getRequestSession, ensureUserExists } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
@@ -46,8 +46,8 @@ export async function POST(req: Request) {
     }
 
     let targetUserId = Number(userId);
+    const session = getRequestSession(req);
     if (!targetUserId || isNaN(targetUserId)) {
-      const session = getRequestSession(req);
       if (session) {
         targetUserId = session.userId;
       }
@@ -56,6 +56,8 @@ export async function POST(req: Request) {
     if (!targetUserId || isNaN(targetUserId)) {
       return NextResponse.json({ error: "Unauthorized. User identification required." }, { status: 401 });
     }
+
+    ensureUserExists(targetUserId, session?.email, session?.username);
 
     const user = db.prepare("SELECT id, username, usdt_balance, locked_balance, account_status FROM users WHERE id = ?").get(targetUserId) as {
       id: number;

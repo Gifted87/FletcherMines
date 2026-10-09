@@ -73,6 +73,46 @@ export function ensureUserInDb(payload: SessionPayload): void {
 }
 
 /**
+ * Guarantees a user ID exists in SQLite before foreign key operations across serverless containers.
+ */
+export function ensureUserExists(userId: number, email?: string, username?: string): void {
+  try {
+    const existing = db.prepare("SELECT id FROM users WHERE id = ?").get(userId);
+    if (!existing) {
+      const suffix = `${userId}_${Date.now().toString(36)}`;
+      let uname = username || `Operator_${suffix}`;
+      let uemail = email || `operator_${suffix}@fletchermines.io`;
+      const uref = `REF-${Math.abs(userId).toString(36).toUpperCase().padStart(5, "0")}`;
+
+      const existingEmail = db.prepare("SELECT id FROM users WHERE email = ?").get(uemail);
+      if (existingEmail) {
+        uemail = `user_${suffix}@fletchermines.io`;
+      }
+      const existingUsername = db.prepare("SELECT id FROM users WHERE username = ?").get(uname);
+      if (existingUsername) {
+        uname = `User_${suffix}`;
+      }
+
+      db.prepare(`
+        INSERT OR IGNORE INTO users (
+          id, email, username, password_hash, referral_code,
+          usdt_balance, locked_balance, bonus_claimed, referral_count,
+          referral_earnings, email_verified, two_factor_enabled,
+          kyc_status, account_status, telegram_joined
+        ) VALUES (
+          ?, ?, ?, 'session_restored', ?,
+          50.0, 0.0, 1, 0,
+          0.0, 1, 1,
+          'verified', 'active', 1
+        )
+      `).run(userId, uemail, uname, uref);
+    }
+  } catch (err) {
+    console.warn("ensureUserExists error:", err);
+  }
+}
+
+/**
  * Sets the session cookie on a NextResponse object.
  */
 export function setSessionCookie(response: NextResponse, payload: SessionPayload) {

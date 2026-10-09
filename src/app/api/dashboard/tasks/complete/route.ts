@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { getRequestSession } from "@/lib/auth";
+import { getRequestSession, ensureUserExists } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     let { userId, questionId, selectedOption } = body;
 
-    if (!userId) {
-      const session = getRequestSession(req);
-      if (session) {
-        userId = session.userId;
-      }
+    const session = getRequestSession(req);
+    if (!userId && session) {
+      userId = session.userId;
     }
 
     if (!userId) {
@@ -19,6 +17,9 @@ export async function POST(req: Request) {
     }
 
     const targetUserId = Number(userId);
+    // Auto-provision user in SQLite if absent in current serverless container
+    ensureUserExists(targetUserId, session?.email, session?.username);
+
     const todayStr = new Date().toISOString().split("T")[0];
 
     const settings = db.prepare("SELECT task_mode FROM system_settings WHERE id = 1").get() as {
@@ -78,10 +79,14 @@ export async function POST(req: Request) {
       `).run(targetUserId, todayStr, isQuizMode ? "quiz_challenge" : "hashrate_ping", newStreak);
     }
 
-    db.prepare(`
-      INSERT INTO system_events (event_type, user_id, title, details, severity)
-      VALUES ('task_completed', ?, 'Daily Task Completed', ?, 'info')
-    `).run(targetUserId, `User #${targetUserId} completed daily mining task. Streak: ${newStreak} days.`);
+    try {
+      db.prepare(`
+        INSERT INTO system_events (event_type, user_id, title, details, severity)
+        VALUES ('task_completed', ?, 'Daily Task Completed', ?, 'info')
+      `).run(targetUserId, `User #${targetUserId} completed daily mining task. Streak: ${newStreak} days.`);
+    } catch (evtErr) {
+      console.warn("Event logging non-fatal notice:", evtErr);
+    }
 
     return NextResponse.json({
       success: true,

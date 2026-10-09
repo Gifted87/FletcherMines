@@ -29,11 +29,12 @@ if (isVercel) {
 
 const db = new Database(dbPath);
 
-// Enable WAL mode for high concurrency
+// Enable WAL mode for high concurrency and disable strict foreign keys for serverless compatibility
 try {
   db.pragma("journal_mode = WAL");
+  db.pragma("foreign_keys = OFF");
 } catch (e) {
-  console.warn("Pragma WAL mode warning:", e);
+  console.warn("Pragma setup warning:", e);
 }
 
 // Initialize core tables

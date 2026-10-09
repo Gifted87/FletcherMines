@@ -54,19 +54,22 @@ export default function DashboardShell({ initialData }: DashboardShellProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: data.user.id }),
       });
-      await res.json();
-      if (res.ok) {
+      const resData = await res.json().catch(() => null);
+      if (res.ok && (resData?.success || resData?.completed)) {
         setData((prev) => ({
           ...prev,
           dailyTask: {
             ...prev.dailyTask,
             completedToday: true,
-            streakDays: prev.dailyTask.streakDays + 1,
+            streakDays: resData?.streakDays ?? (prev.dailyTask.streakDays + 1),
           },
         }));
+      } else {
+        alert(resData?.message || resData?.error || "Unable to complete task right now. Please try again.");
       }
     } catch (err) {
       console.error("Failed to complete task:", err);
+      alert("Network connection error. Please try again.");
     } finally {
       setTaskLoading(false);
     }

@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { getRequestSession } from "@/lib/auth";
+import { getRequestSession, ensureUserExists } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     let { userId, blockCount = 1, maturityDays = 14 } = body;
 
-    if (!userId) {
-      const session = getRequestSession(req);
-      if (session) {
-        userId = session.userId;
-      }
+    const session = getRequestSession(req);
+    if (!userId && session) {
+      userId = session.userId;
     }
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized. Please log in to acquire blocks." }, { status: 401 });
     }
+
+    ensureUserExists(Number(userId), session?.email, session?.username);
 
     const user = db.prepare("SELECT * FROM users WHERE id = ?").get(userId) as {
       id: number;

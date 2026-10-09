@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { getRequestSession } from "@/lib/auth";
+import { getRequestSession, ensureUserExists } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     let userId = searchParams.get("userId") ? Number(searchParams.get("userId")) : undefined;
 
-    if (!userId) {
-      const session = getRequestSession(req);
-      if (session) {
-        userId = session.userId;
-      }
+    const session = getRequestSession(req);
+    if (!userId && session) {
+      userId = session.userId;
     }
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized. User identification required." }, { status: 401 });
     }
+
+    ensureUserExists(userId, session?.email, session?.username);
 
     const todayStr = new Date().toISOString().split("T")[0];
 
@@ -92,6 +92,8 @@ export async function POST(req: Request) {
       if (!targetUserId) {
         return NextResponse.json({ error: "Unauthorized. User identification required." }, { status: 401 });
       }
+
+      ensureUserExists(targetUserId);
 
       const user = db.prepare("SELECT id, usdt_balance FROM users WHERE id = ?").get(targetUserId) as {
         id: number;

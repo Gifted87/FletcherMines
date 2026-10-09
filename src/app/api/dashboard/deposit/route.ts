@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { getRequestSession } from "@/lib/auth";
+import { getRequestSession, ensureUserExists } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
@@ -15,8 +15,8 @@ export async function POST(req: Request) {
     const hash = (txHash && String(txHash).trim()) || `TX-DEP-${Math.floor(10000 + Math.random() * 90000)}`;
 
     let targetUserId = Number(userId);
+    const session = getRequestSession(req);
     if (!targetUserId || isNaN(targetUserId)) {
-      const session = getRequestSession(req);
       if (session) {
         targetUserId = session.userId;
       }
@@ -25,6 +25,8 @@ export async function POST(req: Request) {
     if (!targetUserId || isNaN(targetUserId)) {
       return NextResponse.json({ error: "Unauthorized. User identification required." }, { status: 401 });
     }
+
+    ensureUserExists(targetUserId, session?.email, session?.username);
 
     // Insert pending deposit into SQLite transactions
     const result = db.prepare(`
