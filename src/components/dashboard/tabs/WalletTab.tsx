@@ -28,7 +28,7 @@ interface WalletTabProps {
 export default function WalletTab({ data, onRefresh }: WalletTabProps) {
   // Deposit modal state
   const [showDepositModal, setShowDepositModal] = useState(false);
-  const [depositNetwork, setDepositNetwork] = useState<"TRC20" | "ERC20">("TRC20");
+  const depositNetwork = "TRC20";
   const [copiedAddr, setCopiedAddr] = useState(false);
   const [depositAmount, setDepositAmount] = useState("500");
   const [txHashInput, setTxHashInput] = useState("");
@@ -54,7 +54,7 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
 
   // Withdrawal modal state
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [withdrawNetwork, setWithdrawNetwork] = useState<"TRC20" | "ERC20">("TRC20");
+  const withdrawNetwork = "TRC20";
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("100");
   const [submittingWithdraw, setSubmittingWithdraw] = useState(false);
@@ -65,8 +65,7 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
   const [txFilter, setTxFilter] = useState<string>("all");
 
   const depositAddressTRC20 = "TKesHy9pJLnK3HkdZkREJzwuo9by1CYXEr";
-  const depositAddressERC20 = "0x89205A3A3b2A5538804eD664619d854cEb245906";
-  const activeDepositAddress = depositNetwork === "TRC20" ? depositAddressTRC20 : depositAddressERC20;
+  const activeDepositAddress = depositAddressTRC20;
 
   const copyDeposit = () => {
     navigator.clipboard.writeText(activeDepositAddress);
@@ -128,6 +127,11 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
 
     if (!withdrawAddress.trim() || withdrawAddress.length < 10) {
       setWithdrawError("Please enter a valid recipient wallet address.");
+      return;
+    }
+
+    if (!withdrawAddress.trim().startsWith("T")) {
+      setWithdrawError("Invalid TRON address. All TRC-20 addresses must begin with 'T' (No ERC-20 supported).");
       return;
     }
 
@@ -382,74 +386,57 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
               <p>Transfer USDT to the designated Fletcher Mines cold treasury address below.</p>
             </div>
             <div className="dash-deposit-box">
-              {/* Network Selector */}
-              <div style={{ display: "flex", gap: "8px", width: "100%", marginBottom: "14px" }}>
-                <button
-                  type="button"
-                  className={`btn btn--sm flex-1 ${depositNetwork === "TRC20" ? "btn--primary" : "btn--secondary"}`}
-                  onClick={() => setDepositNetwork("TRC20")}
-                >
-                  TRC-20 (Tron) - Fast
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn--sm flex-1 ${depositNetwork === "ERC20" ? "btn--primary" : "btn--secondary"}`}
-                  onClick={() => setDepositNetwork("ERC20")}
-                >
-                  ERC-20 (Ethereum)
-                </button>
+              {/* Exclusive TRC-20 Network Badge */}
+              <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: "14px" }}>
+                <span className="badge badge--gold" style={{ fontSize: "11px", letterSpacing: "0.08em" }}>
+                  TRON NETWORK (TRC-20) EXCLUSIVE
+                </span>
               </div>
 
               {/* QR Code Barcode Presentation */}
-              {depositNetwork === "TRC20" ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "14px" }}>
-                  <div
-                    style={{
-                      background: "#ffffff",
-                      padding: "10px",
-                      borderRadius: "16px",
-                      border: "2px solid #f5a623",
-                      boxShadow: "0 0 24px rgba(245, 166, 35, 0.25)",
-                    }}
-                  >
-                    <img
-                      src="/trx_deposit_qr.png"
-                      alt="TRON Network Deposit QR Code"
-                      style={{ width: "160px", height: "160px", display: "block", borderRadius: "8px" }}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      background: "rgba(239, 68, 68, 0.15)",
-                      border: "1px solid rgba(239, 68, 68, 0.4)",
-                      borderRadius: "999px",
-                      padding: "4px 12px",
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      color: "#fca5a5",
-                      letterSpacing: "0.06em",
-                    }}
-                  >
-                    <AlertTriangle size={13} className="text-danger" />
-                    <span>TRON NETWORK (TRC-20) ONLY</span>
-                  </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "14px" }}>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    padding: "10px",
+                    borderRadius: "16px",
+                    border: "2px solid #f5a623",
+                    boxShadow: "0 0 24px rgba(245, 166, 35, 0.25)",
+                  }}
+                >
+                  <img
+                    src="/trx_deposit_qr.png"
+                    alt="TRON Network Deposit QR Code"
+                    style={{ width: "160px", height: "160px", display: "block", borderRadius: "8px" }}
+                  />
                 </div>
-              ) : (
-                <div className="dash-deposit-qr-wrap">
-                  <QrCode size={110} />
+                <div
+                  style={{
+                    marginTop: "10px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(239, 68, 68, 0.15)",
+                    border: "1px solid rgba(239, 68, 68, 0.4)",
+                    borderRadius: "999px",
+                    padding: "4px 12px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "#fca5a5",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  <AlertTriangle size={13} className="text-danger" />
+                  <span>TRON NETWORK (TRC-20) ONLY — NO ERC-20</span>
                 </div>
-              )}
+              </div>
 
               {/* Network Warning Alert Box */}
               <div
                 style={{
                   width: "100%",
-                  background: depositNetwork === "TRC20" ? "rgba(239, 68, 68, 0.08)" : "rgba(245, 166, 35, 0.08)",
-                  border: depositNetwork === "TRC20" ? "1px solid rgba(239, 68, 68, 0.35)" : "1px solid rgba(245, 166, 35, 0.25)",
+                  background: "rgba(239, 68, 68, 0.08)",
+                  border: "1px solid rgba(239, 68, 68, 0.35)",
                   borderRadius: "10px",
                   padding: "10px 12px",
                   marginBottom: "14px",
@@ -459,22 +446,14 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
                   textAlign: "left",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700, color: depositNetwork === "TRC20" ? "#f87171" : "#f5a623", marginBottom: "3px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700, color: "#f87171", marginBottom: "3px" }}>
                   <AlertCircle size={14} />
-                  <span>{depositNetwork === "TRC20" ? "TRON BLOCKCHAIN CONFIRMATION" : "ETHEREUM NETWORK CONFIRMATION"}</span>
+                  <span>CRITICAL NETWORK NOTICE</span>
                 </div>
-                {depositNetwork === "TRC20" ? (
-                  <>
-                    This address accepts <strong>USDT strictly on the TRON (TRC-20) network</strong>. Do NOT send funds from Bitcoin, Ethereum, BNB Smart Chain, or any other chain. Non-TRC20 transfers are unrecoverable.
-                  </>
-                ) : (
-                  <>
-                    This address accepts <strong>USDT strictly on the Ethereum (ERC-20) network</strong>. Please ensure standard ERC-20 gas is allocated.
-                  </>
-                )}
+                This deposit vault operates exclusively on the <strong>TRON (TRC-20) network</strong>. Do NOT send funds via Ethereum (ERC-20), BNB Smart Chain, Polygon, or Arbitrum. Non-TRC20 transfers are unrecoverable.
               </div>
 
-              <span className="dash-lbl">{depositNetwork} Treasury Vault Address</span>
+              <span className="dash-lbl">TRC-20 Treasury Vault Address</span>
               <div className="dash-ref-input-box">
                 <input
                   type="text"
@@ -568,32 +547,21 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
             </div>
 
             <form onSubmit={handleWithdrawSubmit} className="dash-deposit-form">
-              {/* Network Selector */}
-              <div style={{ display: "flex", gap: "8px", width: "100%", marginBottom: "12px" }}>
-                <button
-                  type="button"
-                  className={`btn btn--sm flex-1 ${withdrawNetwork === "TRC20" ? "btn--primary" : "btn--secondary"}`}
-                  onClick={() => setWithdrawNetwork("TRC20")}
-                >
-                  TRC-20 (Tron)
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn--sm flex-1 ${withdrawNetwork === "ERC20" ? "btn--primary" : "btn--secondary"}`}
-                  onClick={() => setWithdrawNetwork("ERC20")}
-                >
-                  ERC-20 (Ethereum)
-                </button>
+              {/* Exclusive TRC-20 Withdrawal Network Badge */}
+              <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: "14px" }}>
+                <span className="badge badge--gold" style={{ fontSize: "11px", letterSpacing: "0.06em" }}>
+                  DISBURSEMENT NETWORK: TRON (TRC-20) EXCLUSIVE
+                </span>
               </div>
 
               <div className="dash-field-group">
-                <label className="dash-lbl">Destination Wallet Address</label>
+                <label className="dash-lbl">Recipient TRC-20 Wallet Address (Must start with 'T')</label>
                 <input
                   type="text"
                   value={withdrawAddress}
                   onChange={(e) => setWithdrawAddress(e.target.value)}
                   className="dash-input font-mono text-xs"
-                  placeholder={withdrawNetwork === "TRC20" ? "e.g. T..." : "e.g. 0x..."}
+                  placeholder="e.g. TKesHy9pJLnK3HkdZkREJzwuo9by1CYXEr"
                   required
                 />
               </div>

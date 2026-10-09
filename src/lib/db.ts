@@ -260,7 +260,7 @@ if (countAnnouncements === 0) {
     VALUES 
     ('Batch 05 Live Allocation', 'Batch 05 hardware deployment live in Hall B. 88.7% claimed. Closes today.', 'drop', 'high'),
     ('Daily Yield Settlement Automated', 'Daily yields credited automatically at 00:00 UTC directly to available or locked ledger.', 'treasury', 'normal'),
-    ('Manual Treasury Verification SLA', 'Manual deposit verification for TRC-20 and ERC-20 operating under 45-minute average turnaround.', 'security', 'normal')
+    ('Manual Treasury Verification SLA', 'Manual deposit verification for TRON (TRC-20) operating under 45-minute average turnaround.', 'security', 'normal')
   `).run();
 }
 
@@ -421,7 +421,7 @@ if (countFaqs === 0) {
   );
   insertFaq.run(
     "What network should I use for USDT deposits?",
-    "Fletcher Mines supports TRC-20 (Tron) and ERC-20 (Ethereum). TRC-20 is recommended for fastest verification and lowest network gas fees.",
+    "Fletcher Mines operates exclusively on the TRON network (TRC-20). Deposits must be sent via TRC-20 for instant reconciliation and zero lost funds.",
     "deposits",
     4
   );

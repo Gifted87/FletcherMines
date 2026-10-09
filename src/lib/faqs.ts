@@ -14,7 +14,7 @@ export const FAQS: FaqItem[] = [
   },
   {
     q: "How do I fund my account?",
-    a: "Deposits are made in USDT (TRC-20 or ERC-20) to the treasury address shown in your dashboard, along with your transaction hash. Each deposit is verified manually by our treasury team for security. Automated on-chain verification is in development.",
+    a: "Deposits are made in USDT exclusively on the TRON network (TRC-20) to the treasury address shown in your dashboard, along with your transaction hash. Each deposit is verified manually by our treasury team for security.",
   },
   {
     q: "What are the Daily Mining Tasks?",

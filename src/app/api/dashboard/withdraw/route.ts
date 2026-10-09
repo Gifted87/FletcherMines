@@ -16,6 +16,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Please enter a valid recipient wallet address." }, { status: 400 });
     }
 
+    if (!address.trim().startsWith("T")) {
+      return NextResponse.json(
+        { error: "Invalid TRON address. Withdrawals are supported exclusively via TRON (TRC-20) and must start with 'T'." },
+        { status: 400 }
+      );
+    }
+
     // Check system settings
     const settings = db.prepare("SELECT pause_withdrawals, min_withdrawal, withdrawal_fee_pct FROM system_settings WHERE id = 1").get() as {
       pause_withdrawals: number;

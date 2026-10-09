@@ -406,7 +406,7 @@ export default function OverviewTab({
             </div>
             <div>
               <strong>Deposit USDT</strong>
-              <span>Manual TRC-20 &amp; ERC-20</span>
+              <span>TRON Network (TRC-20)</span>
             </div>
           </button>
 

@@ -534,7 +534,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
                   </li>
                   <li>
                     <span className="step-num">2</span>
-                    <span>Deposit USDT via TRC-20 or ERC-20 to allocate into hardware blocks.</span>
+                    <span>Deposit USDT via the TRON network (TRC-20) to allocate into hardware blocks.</span>
                   </li>
                   <li>
                     <span className="step-num">3</span>
