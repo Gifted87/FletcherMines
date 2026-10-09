@@ -14,6 +14,7 @@ import {
   Check,
   Loader2,
   AlertCircle,
+  AlertTriangle,
   ShieldCheck,
 } from "lucide-react";
 import { UserDashboardData } from "@/lib/types/dashboard";
@@ -63,7 +64,7 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
   // Filter state for ledger
   const [txFilter, setTxFilter] = useState<string>("all");
 
-  const depositAddressTRC20 = "TFletcherMinesTreasuryVault99214Xk";
+  const depositAddressTRC20 = "TKesHy9pJLnK3HkdZkREJzwuo9by1CYXEr";
   const depositAddressERC20 = "0x89205A3A3b2A5538804eD664619d854cEb245906";
   const activeDepositAddress = depositNetwork === "TRC20" ? depositAddressTRC20 : depositAddressERC20;
 
@@ -399,12 +400,89 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
                 </button>
               </div>
 
-              <div className="dash-deposit-qr-wrap">
-                <QrCode size={110} />
+              {/* QR Code Barcode Presentation */}
+              {depositNetwork === "TRC20" ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "14px" }}>
+                  <div
+                    style={{
+                      background: "#ffffff",
+                      padding: "10px",
+                      borderRadius: "16px",
+                      border: "2px solid #f5a623",
+                      boxShadow: "0 0 24px rgba(245, 166, 35, 0.25)",
+                    }}
+                  >
+                    <img
+                      src="/trx_deposit_qr.png"
+                      alt="TRON Network Deposit QR Code"
+                      style={{ width: "160px", height: "160px", display: "block", borderRadius: "8px" }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      background: "rgba(239, 68, 68, 0.15)",
+                      border: "1px solid rgba(239, 68, 68, 0.4)",
+                      borderRadius: "999px",
+                      padding: "4px 12px",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: "#fca5a5",
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    <AlertTriangle size={13} className="text-danger" />
+                    <span>TRON NETWORK (TRC-20) ONLY</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="dash-deposit-qr-wrap">
+                  <QrCode size={110} />
+                </div>
+              )}
+
+              {/* Network Warning Alert Box */}
+              <div
+                style={{
+                  width: "100%",
+                  background: depositNetwork === "TRC20" ? "rgba(239, 68, 68, 0.08)" : "rgba(245, 166, 35, 0.08)",
+                  border: depositNetwork === "TRC20" ? "1px solid rgba(239, 68, 68, 0.35)" : "1px solid rgba(245, 166, 35, 0.25)",
+                  borderRadius: "10px",
+                  padding: "10px 12px",
+                  marginBottom: "14px",
+                  fontSize: "12px",
+                  lineHeight: 1.45,
+                  color: "rgba(255, 255, 255, 0.85)",
+                  textAlign: "left",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700, color: depositNetwork === "TRC20" ? "#f87171" : "#f5a623", marginBottom: "3px" }}>
+                  <AlertCircle size={14} />
+                  <span>{depositNetwork === "TRC20" ? "TRON BLOCKCHAIN CONFIRMATION" : "ETHEREUM NETWORK CONFIRMATION"}</span>
+                </div>
+                {depositNetwork === "TRC20" ? (
+                  <>
+                    This address accepts <strong>USDT strictly on the TRON (TRC-20) network</strong>. Do NOT send funds from Bitcoin, Ethereum, BNB Smart Chain, or any other chain. Non-TRC20 transfers are unrecoverable.
+                  </>
+                ) : (
+                  <>
+                    This address accepts <strong>USDT strictly on the Ethereum (ERC-20) network</strong>. Please ensure standard ERC-20 gas is allocated.
+                  </>
+                )}
               </div>
+
               <span className="dash-lbl">{depositNetwork} Treasury Vault Address</span>
               <div className="dash-ref-input-box">
-                <input type="text" readOnly value={activeDepositAddress} className="font-mono text-center text-xs" />
+                <input
+                  type="text"
+                  readOnly
+                  value={activeDepositAddress}
+                  className="font-mono text-center text-xs text-gold"
+                  style={{ fontWeight: 600, letterSpacing: "0.03em" }}
+                />
                 <button type="button" onClick={copyDeposit} className="btn btn--secondary btn--sm">
                   {copiedAddr ? <Check size={14} /> : <Copy size={14} />}
                   <span>{copiedAddr ? "Copied" : "Copy"}</span>
