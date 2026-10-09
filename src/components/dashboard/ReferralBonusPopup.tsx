@@ -59,17 +59,11 @@ export default function ReferralBonusPopup({
 
   return (
     <div
+      className="dash-ref-popup"
       style={{
-        position: "fixed",
-        bottom: "28px",
-        right: "28px",
-        zIndex: 110,
-        maxWidth: "400px",
-        width: "calc(100vw - 36px)",
         transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.96)",
         opacity: visible ? 1 : 0,
         pointerEvents: visible ? "auto" : "none",
-        transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
       }}
     >
       <div

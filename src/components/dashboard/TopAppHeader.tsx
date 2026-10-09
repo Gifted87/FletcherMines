@@ -65,7 +65,7 @@ export default function TopAppHeader({
               <Wallet size={16} />
             </div>
             <div className="dash-balance-chip__info">
-              <span className="dash-balance-chip__label">Available</span>
+              <span className="dash-balance-chip__label desktop-only">Available</span>
               <span className="dash-balance-chip__val font-mono">
                 {data.metrics.availableBalance.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
@@ -88,7 +88,7 @@ export default function TopAppHeader({
           {/* Support Icon */}
           <button
             type="button"
-            className="dash-icon-btn"
+            className="dash-icon-btn desktop-only"
             onClick={onOpenSupport}
             title="Contact Support"
             aria-label="Support Desk"

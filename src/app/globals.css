@@ -4442,19 +4442,23 @@ p {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-  background: rgba(10, 14, 21, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 9999;
+  background: rgba(10, 14, 22, 0.98);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.85);
+  padding-bottom: max(env(safe-area-inset-bottom), 6px);
   display: none;
 }
 
 .dash-mobile-nav__grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  height: 60px;
+  height: 56px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 4px;
 }
 
 .dash-mobile-nav__item {
@@ -4462,20 +4466,44 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   background: transparent;
   border: 0;
-  color: var(--text-3);
-  font-size: 10.5px;
+  color: #8b9bb4;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  padding: 4px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dash-mobile-nav__item:active {
+  transform: scale(0.92);
 }
 
 .dash-mobile-nav__item.is-active {
-  color: var(--emerald-2);
+  color: #fbbf24;
   font-weight: 700;
+}
+
+.dash-mobile-nav__item.is-active .dash-mobile-nav__icon-wrap {
+  color: #fbbf24;
+  transform: translateY(-2px);
+}
+
+.dash-mobile-nav__item.is-active::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 2.5px;
+  border-radius: 0 0 4px 4px;
+  background: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.85);
 }
 
 .dash-mobile-nav__icon-wrap {
@@ -6053,120 +6081,393 @@ p {
   font-size: 13px;
 }
 
-/* Mobile Responsiveness for Dashboard */
+/* Floating Referral Promo Popup */
+.dash-ref-popup {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  max-width: 400px;
+  width: calc(100vw - 36px);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Mobile Responsiveness for Dashboard (< 900px) */
 @media (max-width: 900px) {
-  .dash-root {
-    padding-bottom: 80px;
+  html, body, .dash-root {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
 
+  .dash-root {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* 1. FLUSH NON-OVERFLOWING MOBILE HEADER */
+  .dash-header {
+    height: 56px !important;
+    padding: 0 12px !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .dash-header__inner {
+    padding: 0 !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .dash-header__left {
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
+    gap: 6px !important;
+  }
+
+  .dash-header__left .logo {
+    font-size: 14px !important;
+    gap: 6px !important;
+  }
+
+  .dash-header__left .logo__mark {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .dash-header__left .logo__sub {
+    display: none !important;
+  }
+
+  .dash-header__right {
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Compact Mobile Balance Chip */
+  .dash-balance-chip {
+    padding: 4px 8px !important;
+    gap: 5px !important;
+    border-radius: 999px !important;
+    max-height: 32px !important;
+  }
+
+  .dash-balance-chip__icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .dash-balance-chip__info {
+    gap: 0 !important;
+    line-height: 1 !important;
+  }
+
+  .dash-balance-chip__label {
+    display: none !important;
+  }
+
+  .dash-balance-chip__val {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+  }
+
+  .dash-balance-chip__locked {
+    display: none !important;
+  }
+
+  .dash-icon-btn {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .dash-avatar-btn {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .dash-avatar-initials {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 11px !important;
+  }
+
+  .dash-avatar-badge {
+    display: none !important;
+  }
+
+  /* 2. PROPER NATIVE MOBILE BOTTOM NAVIGATION BAR */
   .dash-desktop-nav {
     display: none !important;
   }
 
   .dash-mobile-nav {
     display: block !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 9999 !important;
+    background: rgba(10, 14, 22, 0.98) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.85) !important;
+    padding-bottom: max(env(safe-area-inset-bottom), 6px) !important;
   }
 
-  .dash-metrics-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  .dash-mobile-nav__grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    height: 56px !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+    padding: 0 4px !important;
   }
 
-  .dash-metric-card {
-    padding: 14px;
-    gap: 8px;
+  .dash-mobile-nav__item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    color: #8b9bb4 !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
   }
 
-  .dash-metric-card__num {
-    font-size: 18px;
+  .dash-mobile-nav__item.is-active {
+    color: #fbbf24 !important;
+    font-weight: 700 !important;
   }
 
-  .dash-actions-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+  .dash-mobile-nav__item.is-active .dash-mobile-nav__icon-wrap {
+    color: #fbbf24 !important;
+    transform: translateY(-2px) !important;
   }
 
-  .dash-action-btn {
-    padding: 12px 10px;
-    gap: 8px;
+  .dash-mobile-nav__item.is-active::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 28px !important;
+    height: 2.5px !important;
+    border-radius: 0 0 4px 4px !important;
+    background: #fbbf24 !important;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.85) !important;
   }
 
-  .dash-action-btn__icon {
-    width: 32px;
-    height: 32px;
+  /* Floating Promo above bottom nav */
+  .dash-ref-popup {
+    bottom: calc(64px + env(safe-area-inset-bottom) + 10px) !important;
+    right: 12px !important;
+    left: 12px !important;
+    max-width: none !important;
+    width: auto !important;
+    z-index: 900 !important;
   }
 
-  .dash-action-btn strong {
-    font-size: 12px;
+  /* 3. CONSISTENT VERTICAL RHYTHM & CARD SPACING (14px clean gaps) */
+  .dash-workspace {
+    padding: 14px 12px calc(80px + env(safe-area-inset-bottom)) 12px !important;
+    gap: 14px !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
 
-  .dash-action-btn span {
-    font-size: 10px;
+  .dash-overview-view,
+  .dash-subtab-view {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    width: 100% !important;
   }
 
-  .dash-split-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .dash-buy-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dash-mining-kpis {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .dash-earnings-figures {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .dash-contract-meta-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+  .dash-sec-welcome {
+    gap: 10px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
   }
 
   .dash-welcome-header {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .dash-greeting-row {
+    gap: 8px !important;
+    margin-bottom: 2px !important;
   }
 
   .dash-greeting-title {
-    font-size: 20px;
+    font-size: 19px !important;
+    letter-spacing: -0.02em !important;
   }
 
-  .dash-card {
-    padding: 16px;
+  .dash-greeting-sub {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  .dash-status-chips {
+    gap: 6px !important;
+  }
+
+  .dash-chip {
+    padding: 3px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .dash-alert-banner {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    border-radius: 12px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .dash-sec-metrics {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
   }
 
   .dash-command-center {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .dash-command-card {
+    padding: 16px 14px !important;
+    border-radius: 14px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .dash-command-card__header {
+    margin-bottom: 8px !important;
   }
 
   .dash-command-card__main-val {
-    font-size: 26px;
+    font-size: 24px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .dash-command-card__breakdown {
+    padding-top: 10px !important;
+    gap: 5px !important;
+  }
+
+  .dash-sec-actions {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .dash-actions-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .dash-action-btn {
+    padding: 12px 10px !important;
+    gap: 8px !important;
+    border-radius: 12px !important;
+  }
+
+  .dash-action-btn strong {
+    font-size: 12px !important;
+  }
+
+  .dash-action-btn span {
+    font-size: 10px !important;
+  }
+
+  .dash-split-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .dash-split-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  .dash-card {
+    padding: 16px 14px !important;
+    border-radius: 14px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .dash-card-header,
+  .dash-card__head {
+    margin-bottom: 12px !important;
+  }
+
+  .dash-card-title,
+  .dash-card__title-wrap h3 {
+    font-size: 15px !important;
+  }
+
+  .dash-metrics-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .dash-metric-card {
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
+    gap: 6px !important;
+  }
+
+  .dash-mining-kpis,
+  .dash-earnings-figures,
+  .dash-contract-meta-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
   }
 
   .dash-wallet-cards {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
   }
 
   .dash-subtab-header {
-    flex-direction: column;
-    padding: 18px;
-    gap: 14px;
+    flex-direction: column !important;
+    padding: 16px 14px !important;
+    gap: 10px !important;
+    border-radius: 14px !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
   }
 
   .dash-subtab-header h2 {
-    font-size: 20px;
+    font-size: 18px !important;
+    margin: 0 !important;
   }
 
-  .dash-balance-chip__locked {
-    display: none;
+  .dash-subtab-desc {
+    font-size: 12px !important;
+  }
+
+  .dash-buy-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
 }
 
