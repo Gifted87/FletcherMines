@@ -63,7 +63,7 @@ export default function SettingsTab() {
             setPauseDeposits(Boolean(s.pause_deposits));
             setReferralActive(Boolean(s.referral_active ?? 1));
             setMinDeposit(Number(s.min_deposit || 10.0));
-            setMinWithdrawal(Number(s.min_withdrawal || 20.0));
+            setMinWithdrawal(Number(s.min_withdrawal || 1000.0));
             setWithdrawalFeePct(Number(s.withdrawal_fee_pct || 1.0));
             setHeadline(String(s.homepage_headline || ""));
             setSubheadline(String(s.homepage_subheadline || ""));

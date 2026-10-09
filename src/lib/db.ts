@@ -161,7 +161,7 @@ db.exec(`
     pause_deposits INTEGER DEFAULT 0,
     referral_active INTEGER DEFAULT 1,
     min_deposit REAL DEFAULT 10.0,
-    min_withdrawal REAL DEFAULT 20.0,
+    min_withdrawal REAL DEFAULT 1000.0,
     withdrawal_fee_pct REAL DEFAULT 1.0,
     streak_mult_1_3 REAL DEFAULT 1.0,
     streak_mult_4_7 REAL DEFAULT 1.1,
@@ -241,6 +241,11 @@ try {
   if (!txColNames.includes("admin_note")) {
     db.exec("ALTER TABLE transactions ADD COLUMN admin_note TEXT");
   }
+
+  // Enforce platform minimum withdrawal threshold of 1000 USDT
+  try {
+    db.exec("UPDATE system_settings SET min_withdrawal = 1000.0 WHERE id = 1 AND min_withdrawal < 1000.0");
+  } catch {}
 } catch (err) {
   console.warn("Table upgrade notice:", err);
 }
@@ -353,7 +358,7 @@ if (!existingSettings) {
       homepage_headline, homepage_subheadline
     ) VALUES (
       1, 0, 0, 0, 1,
-      10.0, 20.0, 1.0,
+      10.0, 1000.0, 1.0,
       1.0, 1.1, 1.2,
       'reset_zero', 5.0, 'ping',
       'Institutional Hash-Rate. Guaranteed Fixed Daily Yield.',

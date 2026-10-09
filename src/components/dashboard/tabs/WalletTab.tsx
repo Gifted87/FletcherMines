@@ -56,10 +56,13 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const withdrawNetwork = "TRC20";
   const [withdrawAddress, setWithdrawAddress] = useState("");
-  const [withdrawAmount, setWithdrawAmount] = useState("100");
+  const [withdrawAmount, setWithdrawAmount] = useState("1000");
   const [submittingWithdraw, setSubmittingWithdraw] = useState(false);
   const [withdrawSuccess, setWithdrawSuccess] = useState<string | null>(null);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
+
+  const minWithdrawalAmount = 1000;
+  const isWithdrawalLocked = (data.metrics.lockedBalance > 0) || ((data.metrics.activeContractsCount ?? 0) > 0);
 
   // Filter state for ledger
   const [txFilter, setTxFilter] = useState<string>("all");
@@ -119,9 +122,17 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
 
   const handleWithdrawSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isWithdrawalLocked) {
+      setWithdrawError(
+        `Withdrawals restricted: You currently have $${data.metrics.lockedBalance.toFixed(2)} USDT locked in active mining contracts. You cannot withdraw until all allocations reach full maturity at the end of the run.`
+      );
+      return;
+    }
+
     const amt = parseFloat(withdrawAmount);
-    if (!amt || amt <= 0) {
-      setWithdrawError("Please enter a valid withdrawal amount.");
+    if (!amt || amt < minWithdrawalAmount) {
+      setWithdrawError(`Minimum withdrawal amount is ${minWithdrawalAmount.toLocaleString()} USDT ($1,000.00).`);
       return;
     }
 
@@ -206,8 +217,8 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
             className="btn btn--secondary"
             onClick={() => setShowWithdrawModal(true)}
           >
-            <ArrowUpRight size={14} />
-            <span>Withdraw USDT</span>
+            {isWithdrawalLocked ? <Lock size={14} className="text-gold" /> : <ArrowUpRight size={14} />}
+            <span>{isWithdrawalLocked ? "Withdrawals Locked" : "Withdraw USDT"}</span>
           </button>
           <button
             type="button"
@@ -230,7 +241,9 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
             ${data.metrics.availableBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </div>
           <p className="dash-wallet-card__hint">
-            Fully liquid and available for instant block allocation or payout withdrawal.
+            {isWithdrawalLocked
+              ? `Notice: Withdrawals are locked while you have $${data.metrics.lockedBalance.toFixed(2)} USDT in active contracts until the end of the run.`
+              : "Fully liquid and available for instant block allocation or payout withdrawal (min. $1,000.00 USDT)."}
           </p>
           <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
             <button
@@ -238,7 +251,7 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
               className="btn btn--secondary btn--sm"
               onClick={() => setShowWithdrawModal(true)}
             >
-              Withdraw
+              {isWithdrawalLocked ? "Withdraw (Locked)" : "Withdraw"}
             </button>
             <button
               type="button"
@@ -554,11 +567,60 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
                 </span>
               </div>
 
+              {/* Locked Active Run Warning Banner */}
+              {isWithdrawalLocked && (
+                <div
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    border: "1px solid rgba(245, 158, 11, 0.4)",
+                    borderRadius: "8px",
+                    padding: "14px",
+                    marginBottom: "16px",
+                    display: "flex",
+                    gap: "12px",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <Lock size={20} className="text-gold" style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <div>
+                    <div style={{ fontWeight: 700, color: "#f59e0b", fontSize: "12.5px", letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                      WITHDRAWALS LOCKED — ACTIVE RUN IN PROGRESS
+                    </div>
+                    <p style={{ margin: "4px 0 0", fontSize: "12px", lineHeight: "1.5", color: "var(--text-2)" }}>
+                      You currently have <strong className="font-mono text-white">${data.metrics.lockedBalance.toFixed(2)} USDT</strong> locked across {data.metrics.activeContractsCount || 1} active mining contract(s). 
+                      Under platform policy, accounts with locked contract capital cannot execute withdrawals until all active allocations reach full maturity at the end of the run.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Available Balance Minimum Notice */}
+              {data.metrics.availableBalance < 1000 && !isWithdrawalLocked && (
+                <div
+                  style={{
+                    background: "rgba(56, 189, 248, 0.08)",
+                    border: "1px solid rgba(56, 189, 248, 0.25)",
+                    borderRadius: "8px",
+                    padding: "12px 14px",
+                    marginBottom: "16px",
+                    display: "flex",
+                    gap: "10px",
+                    alignItems: "center",
+                  }}
+                >
+                  <AlertCircle size={16} className="text-cyan-400" style={{ flexShrink: 0 }} />
+                  <span style={{ fontSize: "12px", color: "var(--text-2)" }}>
+                    Minimum withdrawal threshold is <strong>1,000.00 USDT</strong>. Your current available liquid balance is <strong className="font-mono text-white">${data.metrics.availableBalance.toFixed(2)} USDT</strong>.
+                  </span>
+                </div>
+              )}
+
               <div className="dash-field-group">
                 <label className="dash-lbl">Recipient TRC-20 Wallet Address (Must start with 'T')</label>
                 <input
                   type="text"
                   value={withdrawAddress}
+                  disabled={isWithdrawalLocked}
                   onChange={(e) => setWithdrawAddress(e.target.value)}
                   className="dash-input font-mono text-xs"
                   placeholder="e.g. TKesHy9pJLnK3HkdZkREJzwuo9by1CYXEr"
@@ -568,20 +630,21 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
 
               <div className="dash-field-group">
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <label className="dash-lbl">Amount to Withdraw (USDT)</label>
+                  <label className="dash-lbl">Amount to Withdraw (USDT - Min. 1,000.00)</label>
                   <span className="text-muted text-xs">
                     Available: <strong className="font-mono text-white">{data.metrics.availableBalance.toFixed(2)} USDT</strong>
                   </span>
                 </div>
                 <input
                   type="number"
-                  min="20"
+                  min="1000"
                   step="1"
+                  disabled={isWithdrawalLocked}
                   max={data.metrics.availableBalance}
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
                   className="dash-input font-mono"
-                  placeholder="e.g. 100"
+                  placeholder="e.g. 1000"
                   required
                 />
               </div>
@@ -609,7 +672,7 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
 
               <p className="dash-deposit-note">
                 <ShieldCheck size={12} className="inline mr-1 text-emerald" />
-                Minimum withdrawal threshold is 20.00 USDT. Outbound payouts are processed by institutional treasury batches.
+                Minimum withdrawal threshold is 1,000.00 USDT. If any capital is locked in active mining contracts, withdrawals are prohibited until the end of the run. Outbound payouts are processed exclusively via TRON (TRC-20) treasury batches.
               </p>
 
               <div className="auth-modal__actions">
@@ -624,12 +687,16 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
                 <button
                   type="submit"
                   className="btn btn--primary"
-                  disabled={submittingWithdraw || data.metrics.availableBalance < 20}
+                  disabled={submittingWithdraw || isWithdrawalLocked || data.metrics.availableBalance < 1000}
                 >
                   {submittingWithdraw ? (
                     <>
                       <Loader2 className="animate-spin" size={16} /> Submitting Cashout...
                     </>
+                  ) : isWithdrawalLocked ? (
+                    "Withdrawals Locked (Run in Progress)"
+                  ) : data.metrics.availableBalance < 1000 ? (
+                    "Minimum 1,000.00 USDT Required"
                   ) : (
                     "Authorize Withdrawal"
                   )}

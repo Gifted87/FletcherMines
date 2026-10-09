@@ -30,7 +30,7 @@ export const FAQS: FaqItem[] = [
   },
   {
     q: "When can I withdraw?",
-    a: "Daily yields settle at 00:00 UTC and can be withdrawn once they reach the minimum withdrawal amount. Principal is released to your wallet balance automatically when the block reaches maturity.",
+    a: "The minimum withdrawal threshold is 1,000 USDT. If you have active mining contracts running with locked funds, withdrawals are locked until all contracts reach full maturity at the end of the run. Once mature or without locked funds, available balances over 1,000 USDT can be withdrawn via TRON (TRC-20).",
   },
   {
     q: "Why are blocks sold in limited batches?",

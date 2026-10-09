@@ -37,10 +37,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const minAmount = settings?.min_withdrawal || 20.0;
+    const minAmount = Math.max(1000.0, settings?.min_withdrawal || 1000.0);
     if (withdrawAmount < minAmount) {
       return NextResponse.json(
-        { error: `Minimum withdrawal is ${minAmount} USDT.` },
+        { error: `Minimum withdrawal amount is ${minAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })} USDT ($1,000.00).` },
         { status: 400 }
       );
     }
@@ -57,10 +57,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized. User identification required." }, { status: 401 });
     }
 
-    const user = db.prepare("SELECT id, username, usdt_balance, account_status FROM users WHERE id = ?").get(targetUserId) as {
+    const user = db.prepare("SELECT id, username, usdt_balance, locked_balance, account_status FROM users WHERE id = ?").get(targetUserId) as {
       id: number;
       username: string;
       usdt_balance: number;
+      locked_balance: number;
       account_status: string;
     } | undefined;
 
@@ -70,6 +71,25 @@ export async function POST(req: Request) {
 
     if (user.account_status === "frozen") {
       return NextResponse.json({ error: "Your account is currently locked. Please contact support." }, { status: 403 });
+    }
+
+    // Check if the user has any amounts locked in active mining contracts
+    const activeBlocks = db.prepare(`
+      SELECT count(*) as count, coalesce(sum(total_invested), 0) as lockedTotal 
+      FROM mining_blocks 
+      WHERE user_id = ? AND status = 'active'
+    `).get(targetUserId) as { count: number; lockedTotal: number } | undefined;
+
+    const lockedAmount = Math.max(Number(user.locked_balance || 0), Number(activeBlocks?.lockedTotal || 0));
+    const hasActiveContracts = lockedAmount > 0 || ((activeBlocks?.count || 0) > 0);
+
+    if (hasActiveContracts) {
+      return NextResponse.json(
+        {
+          error: `Withdrawal restricted: You currently have ${lockedAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })} USDT locked in active mining allocations. Under platform protocol, accounts with locked contract capital cannot execute withdrawals until all active contracts reach maturity at the end of the run.`,
+        },
+        { status: 403 }
+      );
     }
 
     if (user.usdt_balance < withdrawAmount) {
