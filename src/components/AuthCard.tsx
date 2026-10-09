@@ -347,7 +347,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
       setLoginSuccess(data.user);
       // Immediately navigate to authenticated user dashboard
       setTimeout(() => {
-        window.location.href = "/dashboard";
+        window.location.href = `/dashboard?user=${data.user.id}`;
       }, 700);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Authentication failed.";
@@ -550,7 +550,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
                 </ol>
               </div>
 
-              <Link href="/dashboard" className="btn btn--primary btn--lg btn--block">
+              <Link href={`/dashboard?user=${signupSuccess.id}`} className="btn btn--primary btn--lg btn--block">
                 Proceed to Operator Dashboard <ArrowRight size={16} />
               </Link>
             </div>
@@ -582,7 +582,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
                 </div>
               </div>
 
-              <Link href="/dashboard" className="btn btn--primary btn--lg btn--block">
+              <Link href={`/dashboard?user=${loginSuccess.id}`} className="btn btn--primary btn--lg btn--block">
                 Proceed to Mining Dashboard <ArrowRight size={16} />
               </Link>
             </div>

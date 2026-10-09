@@ -3,11 +3,15 @@ import { NextResponse } from "next/server";
 import db from "@/lib/db";
 
 export const SESSION_COOKIE_NAME = "fm_session";
+export const VAULT_COOKIE_NAME = "fm_vault";
 
 export interface SessionPayload {
   userId: number;
   email: string;
   username: string;
+  referralCode?: string;
+  usdtBalance?: number;
+  passwordHash?: string;
   createdAt: number;
 }
 
@@ -36,6 +40,39 @@ export function decodeSession(token: string): SessionPayload | null {
 }
 
 /**
+ * Ensures user exists in SQLite database across ephemeral serverless lambdas.
+ */
+export function ensureUserInDb(payload: SessionPayload): void {
+  try {
+    const existing = db.prepare("SELECT id FROM users WHERE id = ?").get(payload.userId);
+    if (!existing) {
+      db.prepare(`
+        INSERT OR IGNORE INTO users (
+          id, email, username, password_hash, referral_code,
+          usdt_balance, locked_balance, bonus_claimed, referral_count,
+          referral_earnings, email_verified, two_factor_enabled,
+          kyc_status, account_status, telegram_joined
+        ) VALUES (
+          ?, ?, ?, ?, ?,
+          ?, 0.0, 1, 0,
+          0.0, 1, 1,
+          'verified', 'active', 1
+        )
+      `).run(
+        payload.userId,
+        payload.email,
+        payload.username,
+        payload.passwordHash || "session_restored",
+        payload.referralCode || `REF-${Math.abs(payload.userId).toString(36).toUpperCase().padStart(5, "0")}`,
+        payload.usdtBalance ?? 50.0
+      );
+    }
+  } catch (err) {
+    console.warn("ensureUserInDb notice:", err);
+  }
+}
+
+/**
  * Sets the session cookie on a NextResponse object.
  */
 export function setSessionCookie(response: NextResponse, payload: SessionPayload) {
@@ -49,6 +86,21 @@ export function setSessionCookie(response: NextResponse, payload: SessionPayload
     path: "/",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   });
+
+  // Also maintain long-lived vault cookie so accounts persist across serverless restarts
+  try {
+    response.cookies.set({
+      name: VAULT_COOKIE_NAME,
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 90 * 24 * 60 * 60, // 90 days
+    });
+  } catch (err) {
+    console.warn("Vault cookie set notice:", err);
+  }
 }
 
 /**
@@ -71,25 +123,29 @@ export function clearSessionCookie(response: NextResponse) {
  */
 export async function getServerSession(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value || cookieStore.get(VAULT_COOKIE_NAME)?.value;
   if (!token) return null;
 
   const payload = decodeSession(token);
-  if (!payload) return null;
+  if (!payload || !payload.userId) return null;
 
-  // Verify user still exists in database
+  ensureUserInDb(payload);
+
+  // Verify user in database
   const user = db.prepare("SELECT id, email, username, account_status FROM users WHERE id = ?").get(payload.userId) as
     | { id: number; email: string; username: string; account_status: string }
     | undefined;
 
-  if (!user || user.account_status === "frozen") {
+  if (user && user.account_status === "frozen") {
     return null;
   }
 
   return {
-    userId: user.id,
-    email: user.email,
-    username: user.username,
+    userId: payload.userId,
+    email: payload.email,
+    username: payload.username,
+    referralCode: payload.referralCode,
+    usdtBalance: payload.usdtBalance,
     createdAt: payload.createdAt,
   };
 }
@@ -99,28 +155,38 @@ export async function getServerSession(): Promise<SessionPayload | null> {
  */
 export function getRequestSession(req: Request): SessionPayload | null {
   const cookieHeader = req.headers.get("cookie") || "";
-  const match = cookieHeader
-    .split(";")
-    .map((c) => c.trim())
-    .find((c) => c.startsWith(`${SESSION_COOKIE_NAME}=`));
+  const match =
+    cookieHeader
+      .split(";")
+      .map((c) => c.trim())
+      .find((c) => c.startsWith(`${SESSION_COOKIE_NAME}=`)) ||
+    cookieHeader
+      .split(";")
+      .map((c) => c.trim())
+      .find((c) => c.startsWith(`${VAULT_COOKIE_NAME}=`));
 
   if (!match) return null;
-  const rawToken = match.substring(SESSION_COOKIE_NAME.length + 1).split(";")[0].replace(/^"|"$/g, "");
+  const cookieName = match.split("=")[0];
+  const rawToken = match.substring(cookieName.length + 1).split(";")[0].replace(/^"|"$/g, "");
   const payload = decodeSession(rawToken);
-  if (!payload) return null;
+  if (!payload || !payload.userId) return null;
+
+  ensureUserInDb(payload);
 
   const user = db.prepare("SELECT id, email, username, account_status FROM users WHERE id = ?").get(payload.userId) as
     | { id: number; email: string; username: string; account_status: string }
     | undefined;
 
-  if (!user || user.account_status === "frozen") {
+  if (user && user.account_status === "frozen") {
     return null;
   }
 
   return {
-    userId: user.id,
-    email: user.email,
-    username: user.username,
+    userId: payload.userId,
+    email: payload.email,
+    username: payload.username,
+    referralCode: payload.referralCode,
+    usdtBalance: payload.usdtBalance,
     createdAt: payload.createdAt,
   };
 }

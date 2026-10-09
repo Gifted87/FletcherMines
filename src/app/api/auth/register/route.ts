@@ -156,6 +156,9 @@ export async function POST(req: Request) {
       userId: newUserId,
       email: cleanEmail,
       username: cleanUsername,
+      referralCode: newRefCode,
+      usdtBalance: 50.0,
+      passwordHash,
       createdAt: Date.now(),
     });
 
