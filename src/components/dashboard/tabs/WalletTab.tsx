@@ -334,7 +334,8 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
           </div>
         </div>
 
-        <div className="dash-tx-table-wrap">
+        {/* Desktop Table View */}
+        <div className="dash-tx-table-wrap desktop-only">
           <table className="dash-tx-table">
             <thead>
               <tr>
@@ -387,6 +388,51 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Dedicated Card List View */}
+        <div className="mobile-tx-list mobile-only">
+          {filteredTxs.length === 0 ? (
+            <div className="text-center py-6 text-muted text-xs">
+              No ledger entries match this category.
+            </div>
+          ) : (
+            filteredTxs.map((tx) => {
+              const isPositive = tx.type === "deposit" || tx.type === "daily_yield" || tx.type === "referral_bonus";
+              return (
+                <div key={tx.id} className="mobile-tx-card">
+                  <div className="mobile-tx-card__left">
+                    <div className="dash-tx-type">
+                      {tx.type === "deposit" ? (
+                        <span className="dash-tx-icon dash-tx-icon--in"><ArrowDownLeft size={14} /></span>
+                      ) : tx.type === "block_purchase" ? (
+                        <span className="dash-tx-icon dash-tx-icon--out"><Box size={14} /></span>
+                      ) : tx.type === "referral_bonus" ? (
+                        <span className="dash-tx-icon dash-tx-icon--bonus"><Gift size={14} /></span>
+                      ) : (
+                        <span className="dash-tx-icon dash-tx-icon--in"><ArrowUpRight size={14} /></span>
+                      )}
+                      <div>
+                        <strong className="capitalize" style={{ fontSize: "13px" }}>{tx.type.replace("_", " ")}</strong>
+                        <div className="font-mono text-muted" style={{ fontSize: "10px" }}>{tx.txHash.substring(0, 14)}…</div>
+                      </div>
+                    </div>
+                    <p style={{ margin: "4px 0 0", fontSize: "11px", color: "var(--text-3)", lineHeight: 1.35 }}>
+                      {tx.description}
+                    </p>
+                  </div>
+                  <div className="mobile-tx-card__right">
+                    <span className={`font-mono font-bold ${isPositive ? "text-emerald" : "text-danger"}`} style={{ fontSize: "13.5px" }}>
+                      {isPositive ? "+" : "-"}${tx.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </span>
+                    <span className={`dash-badge ${tx.status === "completed" ? "dash-badge--emerald" : "dash-badge--amber"}`} style={{ fontSize: "9px", marginTop: "3px" }}>
+                      {tx.status}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -647,6 +693,28 @@ export default function WalletTab({ data, onRefresh }: WalletTabProps) {
                   placeholder="e.g. 1000"
                   required
                 />
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px", marginTop: "8px" }}>
+                  {[
+                    { label: "25%", mult: 0.25 },
+                    { label: "50%", mult: 0.5 },
+                    { label: "75%", mult: 0.75 },
+                    { label: "MAX", mult: 1.0 },
+                  ].map((p) => (
+                    <button
+                      key={p.label}
+                      type="button"
+                      disabled={isWithdrawalLocked || data.metrics.availableBalance <= 0}
+                      className="btn btn--secondary btn--xs"
+                      style={{ justifyContent: "center", padding: "6px 0", fontSize: "11px", fontWeight: 700 }}
+                      onClick={() => {
+                        const calculated = Math.floor(data.metrics.availableBalance * p.mult);
+                        setWithdrawAmount(String(calculated));
+                      }}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px 14px", borderRadius: "8px", fontSize: "12px" }}>

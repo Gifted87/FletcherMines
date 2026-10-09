@@ -164,6 +164,7 @@ export default function DashboardShell({ initialData }: DashboardShellProps) {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         data={data}
+        onOpenSupport={() => setShowSupportModal(true)}
       />
 
       {/* 5. Contact Support Modal */}

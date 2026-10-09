@@ -3858,6 +3858,10 @@ p {
   display: block;
 }
 
+.mobile-only {
+  display: none !important;
+}
+
 .auth-field-msg {
   display: block;
   font-size: 12px;
@@ -6468,6 +6472,343 @@ p {
   .dash-buy-grid {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
+  }
+
+  /* =========================================================================
+     DEDICATED MOBILE VERSION: AUTHENTICATED USER DASHBOARD, TABS & POPUPS
+     ========================================================================= */
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  /* 1. Dedicated Mobile Bottom Sheets & Drawers */
+  .mobile-sheet-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(4, 7, 12, 0.85) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    animation: fadeIn 0.2s ease-out !important;
+  }
+
+  .mobile-sheet {
+    width: 100% !important;
+    max-width: 580px !important;
+    max-height: 88vh !important;
+    background: #0d121b !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-bottom: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 12px 18px calc(24px + env(safe-area-inset-bottom)) 18px !important;
+    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.9) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    animation: slideUpSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .mobile-sheet__handle {
+    width: 38px !important;
+    height: 4.5px !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-radius: 999px !important;
+    margin: 2px auto 14px auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .mobile-sheet__head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    margin-bottom: 12px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .mobile-sheet__title-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .mobile-sheet__title-wrap h3 {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+  }
+
+  .mobile-sheet__close {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #94a3b8 !important;
+    cursor: pointer !important;
+  }
+
+  .mobile-sheet__body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex: 1 !important;
+    padding-right: 2px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .mobile-sheet__footer {
+    padding-top: 10px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 2. Notification Cards in Mobile Sheet */
+  .mobile-notif-cards {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .mobile-notif-card {
+    display: flex !important;
+    gap: 12px !important;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  }
+
+  .mobile-notif-card.is-pending {
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    background: rgba(245, 158, 11, 0.05) !important;
+  }
+
+  .mobile-notif-card.is-info {
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    background: rgba(16, 185, 129, 0.05) !important;
+  }
+
+  .mobile-notif-card.is-good {
+    border-color: rgba(56, 189, 248, 0.3) !important;
+    background: rgba(56, 189, 248, 0.05) !important;
+  }
+
+  .mobile-notif-card__icon {
+    flex-shrink: 0 !important;
+    margin-top: 2px !important;
+  }
+
+  .mobile-notif-card__content {
+    flex: 1 !important;
+  }
+
+  .mobile-notif-card__top {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+    gap: 8px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .mobile-notif-card__top strong {
+    font-size: 13.5px !important;
+    color: #ffffff !important;
+  }
+
+  .mobile-notif-card__time {
+    font-size: 11px !important;
+    color: #64748b !important;
+    font-family: var(--font-num) !important;
+  }
+
+  .mobile-notif-card p {
+    font-size: 12px !important;
+    color: #94a3b8 !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  /* 3. Mobile Profile Drawer Elements */
+  .mobile-profile-status-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .mobile-profile-status-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 12px !important;
+    color: #94a3b8 !important;
+  }
+
+  .mobile-sheet-nav-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .mobile-sheet-nav-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid transparent !important;
+    width: 100% !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    transition: all 0.15s ease !important;
+  }
+
+  .mobile-sheet-nav-item:active,
+  .mobile-sheet-nav-item.is-current {
+    background: rgba(251, 191, 36, 0.08) !important;
+    border-color: rgba(251, 191, 36, 0.25) !important;
+  }
+
+  .mobile-sheet-nav-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .mobile-sheet-nav-icon.icon--cyan {
+    background: rgba(6, 182, 212, 0.15) !important;
+    color: #06b6d4 !important;
+  }
+
+  .mobile-sheet-nav-icon.icon--emerald {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #10b981 !important;
+  }
+
+  .mobile-sheet-nav-icon.icon--gold {
+    background: rgba(251, 191, 36, 0.15) !important;
+    color: #fbbf24 !important;
+  }
+
+  .mobile-sheet-nav-icon.icon--blue {
+    background: rgba(59, 130, 246, 0.15) !important;
+    color: #3b82f6 !important;
+  }
+
+  .mobile-sheet-nav-icon.icon--gray {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #94a3b8 !important;
+  }
+
+  .mobile-sheet-nav-info {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+  }
+
+  .mobile-sheet-nav-info strong {
+    font-size: 13.5px !important;
+    color: #ffffff !important;
+  }
+
+  .mobile-sheet-nav-info span {
+    font-size: 11px !important;
+    color: #64748b !important;
+    line-height: 1.25 !important;
+  }
+
+  /* 4. Dedicated Mobile Transaction Cards */
+  .mobile-tx-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .mobile-tx-card {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  }
+
+  .mobile-tx-card__left {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding-right: 12px !important;
+  }
+
+  .mobile-tx-card__right {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 5. Mobile Modals as Bottom Sheets */
+  .auth-modal-backdrop {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .auth-modal {
+    max-width: 100vw !important;
+    border-radius: 22px 22px 0 0 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 16px 16px calc(24px + env(safe-area-inset-bottom)) 16px !important;
+    border-bottom: none !important;
+    animation: slideUpSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .auth-modal::before {
+    content: "" !important;
+    display: block !important;
+    width: 38px !important;
+    height: 4.5px !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-radius: 999px !important;
+    margin: 0 auto 14px auto !important;
+  }
+
+  .auth-modal input,
+  .auth-modal textarea {
+    font-size: 16px !important; /* Disables unwanted iOS Safari auto-zoom */
+  }
+
+  .auth-modal__actions {
+    flex-direction: column-reverse !important;
+    gap: 8px !important;
+  }
+
+  .auth-modal__actions .btn {
+    width: 100% !important;
+    height: 46px !important;
+    justify-content: center !important;
   }
 }
 
