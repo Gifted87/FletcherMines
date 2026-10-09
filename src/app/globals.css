@@ -3442,6 +3442,143 @@ p {
   color: var(--text-3);
 }
 
+/* Telegram Community Mandatory Onboarding Card */
+.auth-telegram-card {
+  margin: 18px 0 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(14, 116, 144, 0.12) 0%, rgba(2, 132, 199, 0.08) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: var(--radius);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-telegram-card:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.12);
+}
+
+.auth-telegram-card.is-error {
+  border-color: rgba(239, 68, 68, 0.7);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(14, 116, 144, 0.05) 100%);
+}
+
+.auth-telegram-card__badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.auth-telegram-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-num);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.auth-telegram-badge .live-dot {
+  width: 6px;
+  height: 6px;
+  background: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+.auth-telegram-members-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-num);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--emerald-2);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.auth-telegram-card__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.auth-telegram-icon-box {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+.auth-telegram-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.auth-telegram-info h4 {
+  font-family: var(--font-head);
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 4px;
+  line-height: 1.35;
+}
+
+.auth-telegram-info p {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.45;
+  margin: 0 0 10px;
+}
+
+.auth-telegram-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #38bdf8;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.auth-telegram-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+  transform: translateY(-1px);
+}
+
+.auth-telegram-confirm {
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 /* Success State & Referral Box */
 .auth-success-screen {
   text-align: center;

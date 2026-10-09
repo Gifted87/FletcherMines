@@ -28,6 +28,8 @@ import {
   Fingerprint,
   Copy,
   ExternalLink,
+  Users,
+  Send,
 } from "lucide-react";
 import Logo from "./Logo";
 import { IMAGES } from "@/lib/images";
@@ -64,6 +66,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
   const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCode, setReferralCode] = useState(defaultRef);
   const [termsAgreed, setTermsAgreed] = useState(false);
+  const [joinedTelegram, setJoinedTelegram] = useState(false);
 
   // Login fields
   const [loginIdentifier, setLoginIdentifier] = useState("");
@@ -77,6 +80,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
   const [confirmError, setConfirmError] = useState("");
   const [referralError, setReferralError] = useState("");
   const [termsError, setTermsError] = useState("");
+  const [telegramError, setTelegramError] = useState("");
   const [loginIdError, setLoginIdError] = useState("");
   const [loginPwdError, setLoginPwdError] = useState("");
 
@@ -259,6 +263,13 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
       hasError = true;
     }
 
+    if (!joinedTelegram) {
+      setTelegramError("Mandatory requirement: You must join over 90,000 miners in our Telegram community (https://t.me/gomining) to proceed.");
+      hasError = true;
+    } else {
+      setTelegramError("");
+    }
+
     if (!termsAgreed) {
       setTermsError("You must accept the terms before continuing.");
       hasError = true;
@@ -281,6 +292,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
           password,
           referralCode,
           termsAgreed,
+          joinedTelegram,
         }),
       });
       const data = await res.json();
@@ -391,8 +403,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
 
   const copyReferral = (code: string) => {
     if (typeof window !== "undefined") {
-      const url = `${window.location.origin}/signup?ref=${code}`;
-      navigator.clipboard.writeText(url);
+      navigator.clipboard.writeText(code);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2000);
     }
@@ -493,18 +504,14 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
                   <span className="badge badge--gold">+50 USDT Each</span>
                 </div>
                 <p className="auth-referral-box__desc">
-                  Earn an additional <strong>50 USDT</strong> credited to your account for every investor who registers using your referral link.
+                  Earn an additional <strong>50 USDT</strong> credited to your account for every investor who registers using your referral code.
                 </p>
                 <div className="auth-referral-input-wrap">
                   <input
                     type="text"
                     readOnly
-                    value={
-                      typeof window !== "undefined"
-                        ? `${window.location.origin}/signup?ref=${signupSuccess.referralCode}`
-                        : `https://fletchermines.com/signup?ref=${signupSuccess.referralCode}`
-                    }
-                    className="auth-referral-input"
+                    value={signupSuccess.referralCode}
+                    className="auth-referral-input font-mono"
                   />
                   <button
                     type="button"
@@ -517,7 +524,7 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
                       </>
                     ) : (
                       <>
-                        <Copy size={14} /> Copy Link
+                        <Copy size={14} /> Copy Code
                       </>
                     )}
                   </button>
@@ -824,7 +831,75 @@ export default function AuthCard({ initialTab = "signup" }: { initialTab?: AuthT
                   )}
                 </div>
 
-                {/* Field 6: Terms & Risk Consent */}
+                {/* Field 6: Mandatory Telegram Community Requirement */}
+                <div className={`auth-telegram-card ${telegramError ? "is-error" : ""}`}>
+                  <div className="auth-telegram-card__badge-row">
+                    <span className="auth-telegram-badge">
+                      <span className="live-dot" /> MANDATORY ONBOARDING REQUIREMENT
+                    </span>
+                    <span className="auth-telegram-members-count">
+                      <Users size={12} /> 90,000+ Active Miners
+                    </span>
+                  </div>
+
+                  <div className="auth-telegram-card__main">
+                    <div className="auth-telegram-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.37.74-.56 2.92-1.27 4.86-2.11 5.83-2.52 2.77-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06-.01.19-.03.28z"/>
+                      </svg>
+                    </div>
+                    <div className="auth-telegram-info">
+                      <h4>Join Over 90,000 Miners in Our Telegram Community</h4>
+                      <p>
+                        Institutional operator compliance requires active membership in our official dispatch community for network hashrate announcements, pool difficulty adjustments, and operational alerts.
+                      </p>
+                      <a
+                        href="https://t.me/gomining"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="auth-telegram-btn"
+                      >
+                        <Send size={14} />
+                        <span>Join Telegram Community (https://t.me/gomining)</span>
+                        <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="auth-telegram-confirm">
+                    <label className="auth-checkbox-label" htmlFor="reg-telegram-check">
+                      <input
+                        type="checkbox"
+                        id="reg-telegram-check"
+                        checked={joinedTelegram}
+                        onChange={(e) => {
+                          setJoinedTelegram(e.target.checked);
+                          if (telegramError) setTelegramError("");
+                        }}
+                        required
+                      />
+                      <span>
+                        <strong>Mandatory:</strong> I confirm that I have joined over 90,000 miners in our Telegram community (
+                        <a
+                          href="https://t.me/gomining"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="auth-inline-link"
+                        >
+                          https://t.me/gomining
+                        </a>
+                        ).
+                      </span>
+                    </label>
+                    {telegramError && (
+                      <span className="auth-field-msg text-error" style={{ display: "block", marginTop: "6px" }}>
+                        {telegramError}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Field 7: Terms & Risk Consent */}
                 <div className="auth-checkbox-group">
                   <label className="auth-checkbox-label">
                     <input

@@ -15,7 +15,7 @@ function generateRefCode(): string {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, username, password, referralCode, termsAgreed } = body;
+    const { email, username, password, referralCode, termsAgreed, joinedTelegram } = body;
 
     if (!email || !username || !password) {
       return NextResponse.json(
@@ -27,6 +27,13 @@ export async function POST(req: Request) {
     if (!termsAgreed) {
       return NextResponse.json(
         { error: "You must agree to the Terms of Service and Risk Disclosure." },
+        { status: 400 }
+      );
+    }
+
+    if (!joinedTelegram) {
+      return NextResponse.json(
+        { error: "Mandatory requirement: You must join over 90,000 miners in our Telegram community (https://t.me/gomining) to complete operator registration." },
         { status: 400 }
       );
     }
@@ -100,8 +107,8 @@ export async function POST(req: Request) {
 
     // Insert user into SQLite database
     const insertStmt = db.prepare(`
-      INSERT INTO users (email, username, password_hash, referral_code, referred_by, usdt_balance, bonus_claimed)
-      VALUES (?, ?, ?, ?, ?, 50.0, 1)
+      INSERT INTO users (email, username, password_hash, referral_code, referred_by, usdt_balance, bonus_claimed, telegram_joined)
+      VALUES (?, ?, ?, ?, ?, 50.0, 1, 1)
     `);
 
     const result = insertStmt.run(

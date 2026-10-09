@@ -54,6 +54,7 @@ db.exec(`
     two_factor_enabled INTEGER DEFAULT 1,
     kyc_status TEXT DEFAULT 'verified',
     account_status TEXT DEFAULT 'active',
+    telegram_joined INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -223,6 +224,9 @@ try {
   }
   if (!userColNames.includes("account_status")) {
     db.exec("ALTER TABLE users ADD COLUMN account_status TEXT DEFAULT 'active'");
+  }
+  if (!userColNames.includes("telegram_joined")) {
+    db.exec("ALTER TABLE users ADD COLUMN telegram_joined INTEGER DEFAULT 1");
   }
 
   const txColumns = db.prepare("PRAGMA table_info(transactions)").all() as Array<{ name: string }>;
